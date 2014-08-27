@@ -22,8 +22,8 @@ Makefile
 /missing
 /stamp-h1
 
-# Binaries
-src/states
+# Yacc
+/ylwrap
 
 # Trash
 *~
