@@ -13,6 +13,9 @@ Planned features include:
 - performing various operations on NFA/DFA/regex such as union, intersection, concatenation and Kleene closure
 - supporting a nice syntax for representing NFA/DFA/regex
 - exporting NFA/DFA/regex to TikZ and other formats
+- minimize DFA
+- diff the languages of two NFA/DFA/regex
+- count how many strings are accepted of a give length
 
 Some of these features have already been implemented.
 
