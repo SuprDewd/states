@@ -30,6 +30,21 @@ int main() {
         cout << *it << endl;
     }
 
+    // int len = 0, cnt = 0;
+    // for (nfa::iterator it = S->begin(); it != S->end(); ++it) {
+    //     if (size(*it) == len) {
+    //         cnt++;
+    //     } else {
+    //         while (len != size(*it)) {
+    //             printf("%d %d\n", len, cnt);
+    //             len++;
+    //             cnt = 0;
+    //         }
+
+    //         cnt = 1;
+    //     }
+    // }
+
     // while (true) {
     //     string line;
     //     getline(cin, line);
