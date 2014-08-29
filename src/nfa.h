@@ -10,13 +10,18 @@
 #include <cassert>
 #include "utils.h"
 #include "ast.h"
+#include "machine.h"
 using namespace std;
 
-class nfa {
+class nfa: public machine {
 public:
     string start_state;
     set<string> final_states;
     map<string, map<char, set<string> > > next_state;
+
+    machine_type get_machine_type() {
+        return MACHINE_NFA;
+    }
 
     bool accepts(const string &s) {
         return this->accepts_rec(this->start_state, s, 0);

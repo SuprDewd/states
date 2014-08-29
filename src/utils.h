@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <cstdio>
+
 #define DEBUG 0
 
 #if DEBUG

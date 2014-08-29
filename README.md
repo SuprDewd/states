@@ -36,6 +36,8 @@ output all strings that are accepted by it.
 ```
 $ cd examples
 $ cat nfa.st
-$ cat nfa.st | states language | head -n 30
+$ lang a-b | states nfa.st | head -n 20
+$ cat re.st
+$ lang a-b | states re.st | head -n 20
 ```
 

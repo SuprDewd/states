@@ -1,2 +1,2 @@
 alphabet a b;
-regex a+ba*
+regex (a+)b(a*)

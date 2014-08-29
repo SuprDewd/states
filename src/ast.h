@@ -37,7 +37,7 @@ public:
     }
 };
 
-class ast_state {
+class ast_state: public ast_node {
 public:
     std::string name;
     ast_onlist next;
@@ -58,7 +58,19 @@ public:
     }
 };
 
-class ast_nfa {
+enum ast_machine_type { AST_MACHINE_NFA, AST_MACHINE_DFA, AST_MACHINE_REGEX };
+
+/* An abstract class representing any pattern-matching machine, such as NFA,
+ * DFA or a regular expression */
+class ast_machine: public ast_node {
+public:
+
+    virtual ast_machine_type get_ast_machine_type() = 0;
+
+    virtual std::ostream& print(std::ostream &outs) = 0;
+};
+
+class ast_nfa: public ast_machine {
 public:
     std::string start;
     ast_statelist states;
@@ -66,6 +78,10 @@ public:
     ast_nfa(std::string start, ast_statelist states) {
         this->start = start;
         this->states = states;
+    }
+
+    ast_machine_type get_ast_machine_type() {
+        return AST_MACHINE_NFA;
     }
 
     std::ostream& print(std::ostream &outs) {
@@ -78,7 +94,164 @@ public:
     }
 };
 
-class ast_alphabet {
+enum ast_re_expr_type { AST_RE_CHAR, AST_RE_OR_LIST, AST_RE_CONCAT_LIST, AST_RE_PLUS, AST_RE_MAYBE, AST_RE_STAR };
+
+class ast_re_expr: public ast_node {
+public:
+
+    virtual ast_re_expr_type get_ast_re_expr_type() = 0;
+
+    virtual std::ostream& print(std::ostream &outs) = 0;
+};
+
+class ast_re_char: public ast_re_expr {
+public:
+
+    char value;
+    ast_re_char(char value) {
+        this->value = value;
+    }
+
+    ast_re_expr_type get_ast_re_expr_type() {
+        return AST_RE_CHAR;
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        return outs << this->value;
+    }
+};
+
+class ast_re_or_list: public ast_re_expr {
+public:
+
+    std::list<ast_re_expr*> exprs;
+    ast_re_or_list() {
+    }
+
+    ast_re_expr_type get_ast_re_expr_type() {
+        return AST_RE_OR_LIST;
+    }
+
+    void push_front(ast_re_expr *expr) {
+        this->exprs.push_front(expr);
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        bool first = true;
+        for (std::list<ast_re_expr*>::const_iterator it = this->exprs.begin(); it != this->exprs.end(); ++it) {
+            if (first) first = false;
+            else outs << "|";
+
+            outs << "(";
+            (*it)->print(outs);
+            outs << ")";
+        }
+        return outs;
+    }
+};
+
+class ast_re_concat_list: public ast_re_expr {
+public:
+
+    std::list<ast_re_expr*> exprs;
+    ast_re_concat_list() {
+    }
+
+    ast_re_expr_type get_ast_re_expr_type() {
+        return AST_RE_CONCAT_LIST;
+    }
+
+    void push_front(ast_re_expr *expr) {
+        this->exprs.push_front(expr);
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        for (std::list<ast_re_expr*>::const_iterator it = this->exprs.begin(); it != this->exprs.end(); ++it) {
+            outs << "(";
+            (*it)->print(outs);
+            outs << ")";
+        }
+        return outs;
+    }
+};
+
+class ast_re_plus: public ast_re_expr {
+public:
+    ast_re_expr *expr;
+
+    ast_re_plus(ast_re_expr *expr) {
+        this->expr = expr;
+    }
+
+    ast_re_expr_type get_ast_re_expr_type() {
+        return AST_RE_PLUS;
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        outs << "(";
+        this->expr->print(outs);
+        return outs << ")+";
+    }
+};
+
+class ast_re_star: public ast_re_expr {
+public:
+    ast_re_expr *expr;
+
+    ast_re_star(ast_re_expr *expr) {
+        this->expr = expr;
+    }
+
+    ast_re_expr_type get_ast_re_expr_type() {
+        return AST_RE_STAR;
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        outs << "(";
+        this->expr->print(outs);
+        return outs << ")*";
+    }
+};
+
+class ast_re_maybe: public ast_re_expr {
+public:
+    ast_re_expr *expr;
+
+    ast_re_maybe(ast_re_expr *expr) {
+        this->expr = expr;
+    }
+
+    ast_re_expr_type get_ast_re_expr_type() {
+        return AST_RE_MAYBE;
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        outs << "(";
+        this->expr->print(outs);
+        return outs << ")?";
+    }
+};
+
+class ast_regex: public ast_machine {
+public:
+    ast_re_expr *expr;
+
+    ast_regex(ast_re_expr *expr) {
+        this->expr = expr;
+    }
+
+    ast_machine_type get_ast_machine_type() {
+        return AST_MACHINE_REGEX;
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        outs << "regex ";
+        this->expr->print(outs);
+        return outs << std::endl;
+    }
+};
+
+class ast_alphabet: public ast_node {
 public:
     std::list<char> alph;
 
@@ -142,22 +315,22 @@ public:
     }
 };
 
-class ast_program {
+class ast_program: public ast_node {
 public:
 
     ast_alphabet *alph;
-    ast_nfa *nfa;
+    ast_machine *machine;
 
-    ast_program(ast_alphabet *alph, ast_nfa *nfa) {
+    ast_program(ast_alphabet *alph, ast_machine *machine) {
         this->alph = alph;
-        this->nfa = nfa;
+        this->machine = machine;
     }
 
     std::ostream& print(std::ostream &outs) {
         outs << std::endl;
         this->alph->print(outs);
         outs << std::endl;
-        this->nfa->print(outs);
+        this->machine->print(outs);
         return outs << std::endl;
     }
 };
