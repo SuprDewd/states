@@ -33,6 +33,7 @@ ast_program *main_program;
 %token TPLUS TSTAR TQUES TPIPE TLPAR TRPAR
 %token TACCEPT TSTATE TON
 %token <sval> TCHAR TCHARRANGE TIDENTIFIER
+%token TEPSILON
 %token TWS
 
 %type <program> program
@@ -113,6 +114,7 @@ re_concat_list: re_single_expr { $$ = new ast_re_concat_list(); $$->push_front($
 
 re_single_expr: TLPAR re_expr TRPAR { $$ = $2; }
               | TCHAR { $$ = new ast_re_char((*$1)[0]); delete $1; }
+              | TEPSILON { $$ = new ast_re_epsilon(); }
               ;
 
 %%

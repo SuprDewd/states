@@ -26,6 +26,7 @@ SEMI         ";"
 IDENTIFIER   [-_a-zA-Z0-9]+
 CHAR         [a-zA-Z0-9]
 CHARRANGE    [a-zA-Z0-9]-[a-zA-Z0-9]
+EPSILON      "epsilon"
 
 NL           \r?\n
 WS           [\r\n\t ]+
@@ -102,6 +103,7 @@ RPAR         ")"
     {PLUS}         return TPLUS;
     {QUES}         return TQUES;
     {PIPE}         return TPIPE;
+    {EPSILON}      return TEPSILON;
     {CHAR}         SAVE_SVAL; return TCHAR;
 
     {NL}           ++lexer_line;

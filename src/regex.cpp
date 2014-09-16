@@ -7,6 +7,10 @@ static regex_component* regex_component_from_ast(ast_re_expr *expr) {
                 ast_re_char *rexpr = (ast_re_char*)expr;
                 return new regex_char(rexpr->value);
             }
+        case AST_RE_EPSILON: {
+                ast_re_epsilon *rexpr = (ast_re_epsilon*)expr;
+                return new regex_epsilon();
+            }
         case AST_RE_OR_LIST: {
                 ast_re_or_list *rexpr = (ast_re_or_list*)expr;
                 std::list<ast_re_expr*> &exprs = rexpr->exprs;

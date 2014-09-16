@@ -94,7 +94,7 @@ public:
     }
 };
 
-enum ast_re_expr_type { AST_RE_CHAR, AST_RE_OR_LIST, AST_RE_CONCAT_LIST, AST_RE_PLUS, AST_RE_MAYBE, AST_RE_STAR };
+enum ast_re_expr_type { AST_RE_CHAR, AST_RE_EPSILON, AST_RE_OR_LIST, AST_RE_CONCAT_LIST, AST_RE_PLUS, AST_RE_MAYBE, AST_RE_STAR };
 
 class ast_re_expr: public ast_node {
 public:
@@ -118,6 +118,21 @@ public:
 
     std::ostream& print(std::ostream &outs) {
         return outs << this->value;
+    }
+};
+
+class ast_re_epsilon: public ast_re_expr {
+public:
+
+    ast_re_epsilon() {
+    }
+
+    ast_re_expr_type get_ast_re_expr_type() {
+        return AST_RE_EPSILON;
+    }
+
+    std::ostream& print(std::ostream &outs) {
+        return outs << "epsilon";
     }
 };
 
