@@ -24,6 +24,8 @@ public:
             return mem[state];
         }
     }
+
+    virtual std::string to_string() = 0;
 };
 
 class regex: public machine {
@@ -45,6 +47,10 @@ public:
         bool res = this->expr->accepts(mem, s, 0, s.size());
         DEBUGMSG("regex starting '%s': %s\n", s.c_str(), res ? "true" : "false");
         return res;
+    }
+
+    std::string to_string() {
+        return this->expr->to_string();
     }
 };
 
@@ -76,6 +82,10 @@ public:
         DEBUGMSG("regex star '%s': %s\n", s.substr(start, len).c_str(), res ? "true" : "false");
         return res;
     }
+
+    std::string to_string() {
+        return "(" + this->expr->to_string() + ")*";
+    }
 };
 
 class regex_plus: public regex_component {
@@ -106,6 +116,10 @@ public:
         DEBUGMSG("regex plus '%s': %s\n", s.substr(start, len).c_str(), res ? "true" : "false");
         return res;
     }
+
+    std::string to_string() {
+        return "(" + this->expr->to_string() + ")+";
+    }
 };
 
 class regex_maybe: public regex_component {
@@ -124,6 +138,10 @@ public:
 
         DEBUGMSG("regex maybe '%s': %s\n", s.substr(start, len).c_str(), res ? "true" : "false");
         return res;
+    }
+
+    std::string to_string() {
+        return "(" + this->expr->to_string() + ")?";
     }
 };
 
@@ -145,6 +163,10 @@ public:
 
         DEBUGMSG("regex or '%s': %s\n", s.substr(start, len).c_str(), res ? "true" : "false");
         return res;
+    }
+
+    std::string to_string() {
+        return "(" + this->option1->to_string() + ")|(" + this->option2->to_string() + ")";
     }
 };
 
@@ -173,6 +195,10 @@ public:
         DEBUGMSG("regex concat '%s': %s\n", s.substr(start, len).c_str(), res ? "true" : "false");
         return res;
     }
+
+    std::string to_string() {
+        return "(" + this->left->to_string() + ")(" + this->right->to_string() + ")";
+    }
 };
 
 class regex_char: public regex_component {
@@ -190,6 +216,31 @@ public:
 
         DEBUGMSG("regex char '%s': %s\n", s.substr(start, len).c_str(), res ? "true" : "false");
         return res;
+    }
+
+    std::string to_string() {
+        return std::string("") + this->value;
+    }
+};
+
+class regex_epsilon: public regex_component {
+public:
+
+    regex_epsilon() {
+    }
+
+    bool accepts_raw(state_memory &mem, const std::string &s, int start, int len) {
+        DEBUGMSG("regex epsilon '%s'\n", s.substr(start, len).c_str());
+
+        bool res = len == 0;
+
+        DEBUGMSG("regex epsilon '%s': %s\n", s.substr(start, len).c_str(), res ? "true" : "false");
+        return res;
+    }
+
+    std::string to_string() {
+        // TODO: make this parseable
+        return std::string("epsilon");
     }
 };
 
